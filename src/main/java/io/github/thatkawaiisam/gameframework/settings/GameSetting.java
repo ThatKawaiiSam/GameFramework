@@ -15,5 +15,4 @@ public class GameSetting<T> {
     public void set(T t) {
         this.value = t;
     }
-
 }
