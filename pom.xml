@@ -28,6 +28,32 @@
     </repositories>
 
     <dependencies>
+        <!-- Redis -->
+        <dependency>
+            <groupId>redis.clients</groupId>
+            <artifactId>jedis</artifactId>
+            <version>2.9.0</version>
+            <scope>compile</scope>
+        </dependency>
+        <!-- Redstone -->
+        <dependency>
+            <groupId>io.github.thatkawaiisam</groupId>
+            <artifactId>redstone</artifactId>
+            <version>1.0-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
+        <!-- RabbitMQ -->
+        <dependency>
+            <groupId>com.rabbitmq</groupId>
+            <artifactId>amqp-client</artifactId>
+            <version>5.5.0</version>
+        </dependency>
+        <!-- RedisHelper -->
+        <dependency>
+            <groupId>io.github.thatkawaiisam.jedis</groupId>
+            <artifactId>helper</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
         <!-- Spigot 1.8 -->
         <dependency>
             <groupId>org.spigotmc</groupId>
@@ -48,18 +74,6 @@
             <artifactId>timers</artifactId>
             <version>1.0-SNAPSHOT</version>
             <scope>provided</scope>
-        </dependency>
-        <!-- Menu Framework -->
-        <dependency>
-            <groupId>io.github.thatkawaiisam</groupId>
-            <artifactId>menus</artifactId>
-            <version>1.0-SNAPSHOT</version>
-        </dependency>
-        <!-- Command Framework -->
-        <dependency>
-            <groupId>io.github.thatkawaiisam</groupId>
-            <artifactId>commands</artifactId>
-            <version>1.0-SNAPSHOT</version>
         </dependency>
         <!-- Configuration Helper -->
         <dependency>

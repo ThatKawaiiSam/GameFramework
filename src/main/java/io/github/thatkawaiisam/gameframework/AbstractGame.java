@@ -1,12 +1,14 @@
 package io.github.thatkawaiisam.gameframework;
 
 import io.github.thatkawaiisam.gameframework.misc.GameTimer;
+import io.github.thatkawaiisam.gameframework.redis.GameRedis;
 import io.github.thatkawaiisam.gameframework.settings.GameSetting;
 import io.github.thatkawaiisam.gameframework.settings.impl.MaxPlayersGameSetting;
 import io.github.thatkawaiisam.gameframework.settings.impl.MinPlayersGameSetting;
 import io.github.thatkawaiisam.gameframework.settings.impl.TeamSizeGameSetting;
 import io.github.thatkawaiisam.gameframework.teams.GamePlayer;
 import io.github.thatkawaiisam.gameframework.teams.GameTeam;
+import io.github.thatkawaiisam.utils.MessageUtility;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Bukkit;
@@ -21,6 +23,7 @@ public abstract class AbstractGame {
     private String id;
     private List<GameSetting> gameSettings = new ArrayList<>();
     private GameState state;
+    private GameRedis redis;
     private Map<String, GameTimer> timers = new ConcurrentHashMap<>();
     private List<GameTeam> teams = new ArrayList<>();
     private List<GamePlayer> players = new ArrayList<>();
@@ -70,6 +73,12 @@ public abstract class AbstractGame {
             }
         }
         return null;
+    }
+
+    public void messageEveryone(String message) {
+        for (GamePlayer gamePlayer : getPlayers()) {
+            gamePlayer.toBukkitPlayer().sendMessage(MessageUtility.formatMessage(message));
+        }
     }
 
     public abstract void start();
