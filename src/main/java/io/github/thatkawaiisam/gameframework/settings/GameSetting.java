@@ -9,7 +9,6 @@ import lombok.Setter;
 public class GameSetting<T> {
 
     private String id;
-
     private T value;
 
     public void set(T t) {

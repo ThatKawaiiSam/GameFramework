@@ -26,23 +26,41 @@ public class GamePayloadThread extends Thread {
 
             //Game
             final AbstractGame game = gameRedis.getGame();
-            data.put("server", RedstoneBukkitAPI.getCurrentServerName());
+            data.put("id", game.getId());
 
             //GameState
             GameState currentState = game.getState();
-            boolean joinable = currentState.isJoinable();
-            boolean spectatable = currentState.isSpectatable();
-            data.put("joinable", joinable + "");
-            data.put("spectatable", spectatable + "");
+            if (currentState != null) {
+                boolean joinable = currentState.isJoinable();
+                boolean spectatable = currentState.isSpectatable();
+                data.put("currentState", currentState.getName());
+                data.put("joinable", joinable + "");
+                data.put("spectatable", spectatable + "");
+            }
 
             //Timer
-            GameTimer currentTimer = game.getTimers().get(currentState.getName());
-            String timerType = currentTimer.getType().name();
-            long timerStart = currentTimer.getStartTime();
-            long timerEnd = currentTimer.getEndTime();
-            data.put("timerType", timerType);
-            data.put("timerStart", timerStart + "");
-            data.put("timerEnd", timerEnd + "");
+            if (game.getTimers().size() > 0) {
+                if (currentState != null) {
+                    GameTimer currentTimer = game.getTimers().get(currentState.getName());
+
+                    if (currentTimer != null) {
+                        String timerType = currentTimer.getType().name();
+                        long timerStart = currentTimer.getStartTime();
+                        long timerEnd = currentTimer.getEndTime();
+                        data.put("timerType", timerType);
+                        data.put("timerStart", timerStart + "");
+                        data.put("timerEnd", timerEnd + "");
+                    }
+                }
+            }
+
+            //Extra Meta
+            if (this.gameRedis.getMetadataProvider() != null) {
+                Map<String, String> metaMap = this.gameRedis.getMetadataProvider().getMetaData();
+                for (String key : metaMap.keySet()) {
+                    data.put("meta" + key, metaMap.get(key));
+                }
+            }
 
             gameRedis.getHelper().runCommand(
                     jedis -> {

@@ -10,20 +10,19 @@ import java.util.stream.Collectors;
 @Getter
 public class GameTeam {
 
-    private final int teamNumber;
-
+    private String id;
     private List<GamePlayer> players = new ArrayList<>();
     private TeamState state;
 
-    public GameTeam(int teamNumber, GamePlayer... players) {
-        this.teamNumber = teamNumber;
+    public GameTeam(String id, GamePlayer... players) {
+        this.id = id;
         this.players.addAll(
                 Arrays.stream(players).collect(Collectors.toList())
         );
     }
 
-    public GameTeam(int teamNumber, List<GamePlayer> players) {
-        this.teamNumber = teamNumber;
+    public GameTeam(String id, List<GamePlayer> players) {
+        this.id = id;
         this.players = players;
     }
 
