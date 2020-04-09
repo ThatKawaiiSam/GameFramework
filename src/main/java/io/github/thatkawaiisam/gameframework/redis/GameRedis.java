@@ -24,4 +24,12 @@ public class GameRedis {
         this(game);
         this.metadataProvider = metadataProvider;
     }
+
+    public void cleanup() {
+        this.payloadThread.stop();
+        helper.runCommand(redis -> {
+            redis.del("GameFramework:" + game.getId());
+            return redis;
+        });
+    }
 }

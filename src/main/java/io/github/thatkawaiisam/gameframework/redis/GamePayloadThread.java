@@ -41,7 +41,7 @@ public class GamePayloadThread extends Thread {
             //Timer
             if (game.getTimers().size() > 0) {
                 if (currentState != null) {
-                    GameTimer currentTimer = game.getTimers().get(currentState.getName());
+                    GameTimer currentTimer = game.getTimers().get(currentState.getName().toLowerCase());
 
                     if (currentTimer != null) {
                         String timerType = currentTimer.getType().name();
@@ -57,8 +57,10 @@ public class GamePayloadThread extends Thread {
             //Extra Meta
             if (this.gameRedis.getMetadataProvider() != null) {
                 Map<String, String> metaMap = this.gameRedis.getMetadataProvider().getMetaData();
-                for (String key : metaMap.keySet()) {
-                    data.put("meta" + key, metaMap.get(key));
+                if (metaMap != null) {
+                    for (String key : metaMap.keySet()) {
+                        data.put("meta_" + key, metaMap.get(key));
+                    }
                 }
             }
 
@@ -70,7 +72,7 @@ public class GamePayloadThread extends Thread {
             );
 
             try {
-                sleep(1000);
+                sleep(500);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

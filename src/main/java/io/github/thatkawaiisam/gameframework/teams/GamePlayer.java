@@ -1,12 +1,13 @@
 package io.github.thatkawaiisam.gameframework.teams;
 
 import lombok.Getter;
+import lombok.Setter;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.util.UUID;
 
-@Getter
+@Getter @Setter
 public class GamePlayer {
 
     private final UUID uuid;

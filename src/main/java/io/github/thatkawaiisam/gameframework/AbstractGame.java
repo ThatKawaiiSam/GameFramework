@@ -1,6 +1,8 @@
 package io.github.thatkawaiisam.gameframework;
 
 import io.github.thatkawaiisam.gameframework.misc.GameTimer;
+import io.github.thatkawaiisam.gameframework.mongo.GameMongo;
+import io.github.thatkawaiisam.gameframework.mongo.GameMongoMatch;
 import io.github.thatkawaiisam.gameframework.redis.GameRedis;
 import io.github.thatkawaiisam.gameframework.settings.GameSetting;
 import io.github.thatkawaiisam.gameframework.settings.impl.MaxPlayersGameSetting;
@@ -8,6 +10,7 @@ import io.github.thatkawaiisam.gameframework.settings.impl.MinPlayersGameSetting
 import io.github.thatkawaiisam.gameframework.settings.impl.TeamSizeGameSetting;
 import io.github.thatkawaiisam.gameframework.teams.GamePlayer;
 import io.github.thatkawaiisam.gameframework.teams.GameTeam;
+import io.github.thatkawaiisam.gameframework.teams.PlayerState;
 import io.github.thatkawaiisam.utils.MessageUtility;
 import lombok.Getter;
 import lombok.Setter;
@@ -16,17 +19,22 @@ import org.bukkit.entity.Player;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 @Getter @Setter
 public abstract class AbstractGame {
 
     private String id;
-    private List<GameSetting> gameSettings = new ArrayList<>();
     private GameState state;
     private GameRedis redis;
-    private Map<String, GameTimer> timers = new ConcurrentHashMap<>();
-    private List<GameTeam> teams = new ArrayList<>();
-    private List<GamePlayer> players = new ArrayList<>();
+    private GameMongo mongo;
+    private GameMongoMatch mongoMatch;
+    private Map<String, GameTimer<? extends AbstractGame>> timers = new ConcurrentHashMap<String, GameTimer<? extends AbstractGame>>();
+    private List<GameSetting<?>> gameSettings = new CopyOnWriteArrayList<>();
+    private List<GameTeam> teams = new CopyOnWriteArrayList<>();
+    private List<GamePlayer> players = new CopyOnWriteArrayList<>();
+    private List<GameModule> modules = new CopyOnWriteArrayList<>();
+    private List<GameListener> gameListeners = new CopyOnWriteArrayList<>();
 
     public AbstractGame(String id) {
         this.id = id;
@@ -46,8 +54,36 @@ public abstract class AbstractGame {
     }
 
     public void setTeamSize(int teamSize) {
-        GameSetting<Integer> gameSetting = getGameSetting("teamSize");
-        gameSetting.setValue(1);
+        GameSetting<Integer> gameSetting = this.getGameSetting("teamSize");
+        gameSetting.setValue(teamSize);
+    }
+
+    public GamePlayer getGamePlayer(UUID uuid) {
+        for (GamePlayer gamePlayer : getPlayers()) {
+            if (gamePlayer.getUuid().equals(uuid)) {
+                return gamePlayer;
+            }
+        }
+        return null;
+    }
+
+    public GameTeam getGameTeam(String id) {
+        for (GameTeam team : getTeams()) {
+            if (team.getId().equalsIgnoreCase(id)) {
+                return team;
+            }
+        }
+        return null;
+    }
+
+    public List<GamePlayer> getGamePlayersFromState(PlayerState playerState) {
+        List<GamePlayer> list = new ArrayList<>();
+        for (GamePlayer gamePlayer : getPlayers()) {
+            if (gamePlayer.getState() == playerState) {
+                list.add(gamePlayer);
+            }
+        }
+        return list;
     }
 
     public List<Player> getPlayersFromGamePlayers(List<GamePlayer> gamePlayers) {
@@ -66,10 +102,19 @@ public abstract class AbstractGame {
         return uuids;
     }
 
-    public <T> T getGameSetting(String settingID) {
+    public <T extends GameSetting> T getGameSetting(String settingID) {
         for (GameSetting<?> setting : gameSettings) {
             if (setting.getId().equalsIgnoreCase(settingID)) {
-                return (T) GameSetting.class.cast(setting);
+                return (T) setting;
+            }
+        }
+        return null;
+    }
+
+    public <T extends GameModule> T getGameModule(String id) {
+        for (GameModule<?> module : getModules()) {
+            if (module.getModuleName().equalsIgnoreCase(id)) {
+                return (T) module;
             }
         }
         return null;
@@ -77,6 +122,9 @@ public abstract class AbstractGame {
 
     public void messageEveryone(String message) {
         for (GamePlayer gamePlayer : getPlayers()) {
+            if (gamePlayer.toBukkitPlayer() == null || !gamePlayer.toBukkitPlayer().isOnline()) {
+                continue;
+            }
             gamePlayer.toBukkitPlayer().sendMessage(MessageUtility.formatMessage(message));
         }
     }
@@ -85,12 +133,10 @@ public abstract class AbstractGame {
 
     public abstract void cleanup();
 
-    public abstract void preJoin(UUID uuid);
-
     public abstract void join(Player player);
 
     public abstract void leave(Player player);
 
-    public abstract void handleDeath(Player player);
+    public abstract boolean isPlayerApplicable(Player player);
 
 }
