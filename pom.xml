@@ -55,8 +55,8 @@
         </dependency>
         <!-- Redstone -->
         <dependency>
-            <groupId>io.github.thatkawaiisam</groupId>
-            <artifactId>redstone</artifactId>
+            <groupId>io.github.thatkawaiisam.redstone</groupId>
+            <artifactId>api</artifactId>
             <version>1.0-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
